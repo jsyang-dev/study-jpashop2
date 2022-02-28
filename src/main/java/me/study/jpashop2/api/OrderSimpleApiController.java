@@ -7,6 +7,8 @@ import me.study.jpashop2.domain.Order;
 import me.study.jpashop2.domain.OrderStatus;
 import me.study.jpashop2.repository.OrderRepository;
 import me.study.jpashop2.repository.OrderSearch;
+import me.study.jpashop2.repository.order.simplequery.OrderSimpleQueryDto;
+import me.study.jpashop2.repository.order.simplequery.OrderSimpleQueryRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class OrderSimpleApiController {
 
     private final OrderRepository orderRepository;
+    private final OrderSimpleQueryRepository orderSimpleQueryRepository;
 
     @GetMapping("/api/v1/simple-orders")
     public List<Order> orderV1() {
@@ -49,6 +52,11 @@ public class OrderSimpleApiController {
         return orders.stream()
                 .map(SimpleOrderDto::new)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/api/v4/simple-orders")
+    public List<OrderSimpleQueryDto> orderV4() {
+        return orderSimpleQueryRepository.findOrderDtos();
     }
 
     @Data
