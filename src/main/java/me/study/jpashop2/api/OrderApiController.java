@@ -8,6 +8,8 @@ import me.study.jpashop2.domain.OrderItem;
 import me.study.jpashop2.domain.OrderStatus;
 import me.study.jpashop2.repository.OrderRepository;
 import me.study.jpashop2.repository.OrderSearch;
+import me.study.jpashop2.repository.order.query.OrderFlatDto;
+import me.study.jpashop2.repository.order.query.OrderItemQueryDto;
 import me.study.jpashop2.repository.order.query.OrderQueryDto;
 import me.study.jpashop2.repository.order.query.OrderQueryRepository;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -71,6 +75,22 @@ public class OrderApiController {
     @GetMapping("/api/v5/orders")
     public List<OrderQueryDto> orderV5() {
         return orderQueryRepository.findOrderQueryDtosOptimization();
+    }
+
+    @GetMapping("/api/v6/orders")
+    public List<OrderQueryDto> orderV6() {
+        List<OrderFlatDto> flats = orderQueryRepository.findOrderQueryDtosFlat();
+        return flats.stream()
+                .collect(
+                        groupingBy(o -> new OrderQueryDto(o.getOrderId(), o.getName(), o.getOrderDate(), o.getOrderStatus(), o.getAddress()),
+                                mapping(o -> new OrderItemQueryDto(o.getOrderId(), o.getItemName(), o.getOrderPrice(), o.getCount()), toList())
+                        )
+                )
+                .entrySet()
+                .stream()
+                .map(e -> new OrderQueryDto(e.getKey().getOrderId(), e.getKey().getName(), e.getKey().getOrderDate(),
+                        e.getKey().getOrderStatus(), e.getKey().getAddress(), e.getValue()))
+                .collect(toList());
     }
 
     @Data

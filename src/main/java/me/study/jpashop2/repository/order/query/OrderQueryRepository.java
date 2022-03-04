@@ -70,4 +70,15 @@ public class OrderQueryRepository {
                 .map(OrderQueryDto::getOrderId)
                 .collect(Collectors.toList());
     }
+
+    public List<OrderFlatDto> findOrderQueryDtosFlat() {
+        return em.createQuery(
+                        "select new me.study.jpashop2.repository.order.query.OrderFlatDto(o.id, m.name, o.orderDate, o.status, d.address, i.name, oi.orderPrice, oi.count)" +
+                                " from Order o" +
+                                " join o.member m" +
+                                " join o.delivery d" +
+                                " join o.orderItems oi" +
+                                " join oi.item i", OrderFlatDto.class)
+                .getResultList();
+    }
 }
